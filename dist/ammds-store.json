@@ -16,8 +16,8 @@
           "jarUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-keiyoushi-extensions.jar"
         },
         "extensionLib": "1.6",
-        "versionCode": "106001",
-        "versionName": "1.6.1",
+        "versionCode": "106002",
+        "versionName": "1.6.2",
         "contentWarning": "CONTENT_WARNING_SAFE",
         "sources": [
           {

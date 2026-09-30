@@ -77,12 +77,24 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def find_build_artifact(build_dir: Path, pattern: str) -> Path:
+def find_build_artifact(build_dir: Path, pattern: str, version: str | None = None) -> Path:
+    """Pick the artifact Gradle just produced.
+
+    Bumping versionCode leaves the previous version's file behind in the same output
+    directory, so a bare glob is ambiguous. Prefer the file named after the current
+    version; otherwise fall back to the most recently written one.
+    """
     matches = sorted(build_dir.glob(pattern))
     if not matches:
         raise SystemExit(f"no file matching {pattern!r} under {build_dir}; run :src:all:ammds:assembleRelease first")
+    if len(matches) > 1 and version:
+        current = [match for match in matches if version in match.name]
+        if len(current) == 1:
+            return current[0]
     if len(matches) > 1:
-        raise SystemExit(f"ambiguous build output for {pattern!r}: {matches}")
+        newest = max(matches, key=lambda path: path.stat().st_mtime)
+        print(f"note: {len(matches)} files match {pattern!r}, using the newest: {newest.name}")
+        return newest
     return matches[0]
 
 
@@ -201,8 +213,9 @@ def main() -> None:
         raise SystemExit(f"missing {source_info_path}; run :src:all:ammds:assembleRelease first")
 
     info = json.loads(source_info_path.read_text(encoding="utf-8"))
-    apk = args.apk or find_build_artifact(build_dir, "outputs/apk/release/*.apk")
-    jar = args.jar or find_build_artifact(build_dir, "outputs/jar/release/*.jar")
+    version = info.get("versionName")
+    apk = args.apk or find_build_artifact(build_dir, "outputs/apk/release/*.apk", version)
+    jar = args.jar or find_build_artifact(build_dir, "outputs/jar/release/*.jar", version)
 
     tag = args.tag or f"{DEFAULT_TAG_PREFIX}{info['versionName']}"
     repo_url = args.repo_url or git_remote_url()
