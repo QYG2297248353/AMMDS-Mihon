@@ -1,0 +1,33 @@
+{
+  "name": "AMMDS",
+  "badgeLabel": "AMMDS",
+  "signingKey": "e02dbd55c5d03b19202a504dd6ceaaf6af389efae25d2e96e1b398a2f3dfdac8",
+  "contact": {
+    "website": "https://github.com/QYG2297248353/AMMDS-Mihon"
+  },
+  "extensionList": {
+    "extensions": [
+      {
+        "name": "AMMDS",
+        "packageName": "eu.kanade.tachiyomi.extension.all.ammds",
+        "resources": {
+          "apkUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-keiyoushi-extensions.apk",
+          "iconUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-icon.png",
+          "jarUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-keiyoushi-extensions.jar"
+        },
+        "extensionLib": "1.6",
+        "versionCode": "106001",
+        "versionName": "1.6.1",
+        "contentWarning": "CONTENT_WARNING_SAFE",
+        "sources": [
+          {
+            "id": "7818923559033634258",
+            "name": "AMMDS",
+            "language": "all",
+            "homeUrl": "https://ammds.lifebus.top"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+.gradle
+build/
+.kotlin
+/local.properties
+.idea/
+*.iml
+.DS_Store
+/captures
+__pycache__/
+
+# Release signing material: never commit. Losing it means users can no longer
+# update over an installed extension, so keep a backup somewhere safe.
+*.jks
+signingkey.properties

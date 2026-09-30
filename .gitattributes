@@ -1,0 +1,13 @@
+/gradlew linguist-generated
+/gradlew.bat linguist-generated
+
+* text=auto eol=lf
+*.bat text eol=crlf
+
+# dist/ holds the published artifacts. They must be stored byte-for-byte:
+# ammds-store.pb is gzipped protobuf and would be silently corrupted by
+# end-of-line normalization if git ever mistook it for text.
+*.pb binary
+*.apk binary
+*.jar binary
+*.png binary
