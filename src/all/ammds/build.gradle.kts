@@ -6,8 +6,10 @@ plugins {
 
 keiyoushi {
     name = "AMMDS"
-    // 3: 修正章节序号恒为 1 导致 Mihon 章节排序/下一章错乱（旧数据 episode 未维护）
-    versionCode = 3
+    // versionName 由 libVersion + versionCode 拼成，因此这里跟着服务端版本走：
+    //   3  -> 1.6.3 修正章节序号恒为 1 导致 Mihon 章节排序/下一章错乱
+    //   82 -> 1.6.82 随服务端 1.6.82 发版（代码未变，给已安装用户一个可更新的版本）
+    versionCode = 82
     contentWarning = ContentWarning.SAFE
     libVersion = "1.6"
 
