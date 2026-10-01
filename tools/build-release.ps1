@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     一键构建并发布 AMMDS Mihon 扩展。
 
@@ -36,7 +36,10 @@
     显式指定 signingkey.properties 路径，覆盖自动查找。
 
 .PARAMETER ReleaseBaseUrl
-    产物对外下载地址前缀，默认 raw.githubusercontent.com 的 main 分支 dist 目录。
+    产物对外下载地址前缀。默认按**当前分支**推导：
+    https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/<当前分支>/dist
+    必须与实际推送产物所在的分支一致——否则索引里的版本号是新的，下载地址却指向
+    另一个分支上的旧 APK（分支改名后尤其容易踩，Mihon 会「看到更新却装回旧版」）。
 
 .PARAMETER SkipLint
     跳过 lintRelease（仓库规范要求提交前通过，默认执行）。
@@ -62,7 +65,7 @@ param(
     [string]$SecretDir,
     [string]$KeyStore,
     [string]$SigningProperties,
-    [string]$ReleaseBaseUrl = "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist",
+    [string]$ReleaseBaseUrl,
     [switch]$SkipLint,
     [switch]$Publish,
     [string]$Proxy
@@ -81,8 +84,19 @@ function Fail {
 if (-not $RepoRoot) { $RepoRoot = Split-Path -Parent $PSScriptRoot }
 $RepoRoot = (Resolve-Path $RepoRoot).Path
 if (-not $SecretDir) { $SecretDir = Join-Path $RepoRoot "secret" }
+
+# 发布地址默认跟随当前分支：产物就提交在当前分支上，指向别的分支会下载到旧包。
+if (-not $ReleaseBaseUrl) {
+    $branch = (& git -C $RepoRoot rev-parse --abbrev-ref HEAD 2>$null)
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($branch) -or "$branch".Trim() -eq "HEAD") {
+        $branch = "master"
+    }
+    $ReleaseBaseUrl = "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/$($branch.Trim())/dist"
+}
+
 Write-Host "仓库:     $RepoRoot"
 Write-Host "密钥目录: $SecretDir"
+Write-Host "发布地址: $ReleaseBaseUrl"
 
 # ------------------------------------------------------------ 环境探测: JDK ---
 function Get-JavaMajorVersion {

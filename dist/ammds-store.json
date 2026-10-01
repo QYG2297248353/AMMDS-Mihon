@@ -11,9 +11,9 @@
         "name": "AMMDS",
         "packageName": "eu.kanade.tachiyomi.extension.all.ammds",
         "resources": {
-          "apkUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-keiyoushi-extensions.apk",
-          "iconUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-icon.png",
-          "jarUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-keiyoushi-extensions.jar"
+          "apkUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/master/dist/ammds-keiyoushi-extensions.apk",
+          "iconUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/master/dist/ammds-icon.png",
+          "jarUrl": "https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/master/dist/ammds-keiyoushi-extensions.jar"
         },
         "extensionLib": "1.6",
         "versionCode": "106003",

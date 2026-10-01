@@ -27,7 +27,7 @@ AMMDS 漫画库：列表、搜索、详情、章节与在线阅读全部走 AMMD
    （形如 amm.x...x.mihon，只对 /api/mihon 有效，不能用于其它接口）
 
 2. Mihon：更多 → 设置 → 浏览 → 扩展仓库 → 添加，粘贴下面的地址：
-   https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist/ammds-store.pb
+   https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/master/dist/ammds-store.pb
 
 3. Mihon：扩展 → 找到「AMMDS」→ 安装
 
@@ -164,7 +164,7 @@ Copy-Item .\secret\signingkey.jks .\signingkey.jks
 .\gradlew.bat :src:all:ammds:assembleRelease :src:all:ammds:lintRelease
 
 python .\src\all\ammds\tools\build_store.py --out-dir dist `
-  --release-base-url https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist
+  --release-base-url https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/master/dist
 
 Remove-Item .\signingkey.jks
 ```
@@ -186,7 +186,7 @@ src/all/ammds/build/keiyoushi-source-info.json      ← versionCode / versionNam
 
 ```powershell
 python .\src\all\ammds\tools\build_store.py --out-dir dist `
-  --release-base-url https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist
+  --release-base-url https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/master/dist
 ```
 
 `build_store.py` 的关键行为：
