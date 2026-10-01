@@ -6,7 +6,8 @@ plugins {
 
 keiyoushi {
     name = "AMMDS"
-    versionCode = 2
+    // 3: 修正章节序号恒为 1 导致 Mihon 章节排序/下一章错乱（旧数据 episode 未维护）
+    versionCode = 3
     contentWarning = ContentWarning.SAFE
     libVersion = "1.6"
 

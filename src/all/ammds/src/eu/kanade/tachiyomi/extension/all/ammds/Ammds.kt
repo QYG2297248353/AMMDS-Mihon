@@ -143,15 +143,47 @@ abstract class Ammds :
      * 拉取章节列表。
      * <p>
      * 服务端按章节序号升序返回，这里倒序排列：阅读器把最新章节放在最前面更符合阅读习惯。
+     * 排序前会先修正序号，见 [normalizeChapterNumbers]。
      *
      * @param mangaId 漫画 ID
      * @return 章节列表
      */
-    private suspend fun getChapterList(mangaId: String): List<SChapter> = request(apiUrl("$PATH_MANGA/$mangaId/chapters"))
-        .parseAs<ChapterListDto>()
-        .items
-        .map { it.toSChapter(mangaId) }
-        .sortedByDescending { it.chapter_number }
+    private suspend fun getChapterList(mangaId: String): List<SChapter> {
+        val chapters = request(apiUrl("$PATH_MANGA/$mangaId/chapters"))
+            .parseAs<ChapterListDto>()
+            .items
+            .map { it.toSChapter(mangaId) }
+        return normalizeChapterNumbers(chapters).sortedByDescending { it.chapter_number }
+    }
+
+    /**
+     * 修正章节序号，保证序号严格递增且互不相同。
+     * <p>
+     * 历史数据里漫画章节的序号字段从未被赋值，服务端会下发同一个值（全是 1）。
+     * 序号全相同时 Mihon 的章节排序与「下一章 / 上一章」定位都失去意义，
+     * 表现为打开漫画直接跳到最后一章。这种情况下按服务端返回的顺序重新编号 1..N：
+     * 服务端返回的就是阅读顺序，所以重新编号与用户的预期一致。
+     * <p>
+     * 服务端已经修好该字段时（序号为正且互不相同）这里不做任何改动，因此扩展同时
+     * 兼容新旧服务端。
+     *
+     * @param chapters 服务端返回的章节，顺序即阅读顺序
+     * @return 序号可用的章节列表
+     */
+    private fun normalizeChapterNumbers(chapters: List<SChapter>): List<SChapter> {
+        if (chapters.isEmpty()) {
+            return chapters
+        }
+        val numbers = chapters.map { it.chapter_number }
+        val usable = numbers.all { it > 0f } && numbers.toSet().size == numbers.size
+        if (usable) {
+            return chapters
+        }
+        chapters.forEachIndexed { index, chapter ->
+            chapter.chapter_number = (index + 1).toFloat()
+        }
+        return chapters
+    }
 
     override suspend fun getPageList(chapter: SChapter): List<Page> {
         val chapterId = chapter.chapterId
