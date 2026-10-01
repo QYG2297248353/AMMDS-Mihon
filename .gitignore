@@ -12,3 +12,4 @@ __pycache__/
 # update over an installed extension, so keep a backup somewhere safe.
 *.jks
 signingkey.properties
+/secret/

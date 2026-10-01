@@ -123,14 +123,28 @@ SDK 版本在 `gradle/kei.versions.toml`：`minSdk 26`、`compileSdk 37`、`targ
 ### 一键出包（推荐）
 
 ```powershell
-$env:JAVA_HOME    = "C:\Program Files\Java\jdk-21"
-$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
-
 .\tools\build-release.ps1
 ```
 
-脚本会读取 `signingkey.properties` 设置签名环境变量，执行 `assembleRelease` + `lintRelease`，
-最后把 APK / JAR / 图标 / 索引一起写进 `dist/`。
+一条命令完成全部环节：
+
+1. **环境探测** —— 自动选可用的 JDK（必须是 17~21 且带 jmods/jlink 的标准 JDK，
+   GraalVM / JRE 会在 AGP 的 `JdkImageTransform` 上失败）、Android SDK
+   （`ANDROID_HOME` / `ANDROID_SDK_ROOT` / `local.properties` / 默认安装位置）、
+   Python 3 + protobuf、`gradlew.bat`；缺什么就给可直接执行的处理提示。
+2. **找签名密钥** —— 依次查找：显式参数 → `secret/` → 仓库根目录。
+3. **构建** —— `assembleRelease` + `lintRelease`。
+4. **打包** —— `build_store.py` 把 APK / JAR / 图标 / 索引写进 `dist/`。
+5. **校验** —— 打印 versionCode/versionName，并比对签名指纹是否与上次发布一致。
+
+常用参数：
+
+```powershell
+.\tools\build-release.ps1 -Publish                  # 打包后自动提交并推送 dist/
+.\tools\build-release.ps1 -SecretDir D:\keys\ammds  # 换密钥目录
+.\tools\build-release.ps1 -SkipLint                 # 跳过 lintRelease
+.\tools\build-release.ps1 -Proxy http://127.0.0.1:7897   # 受限网络下给 Gradle 下载依赖
+```
 
 ### 手动构建
 
@@ -138,15 +152,21 @@ $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 $env:JAVA_HOME    = "C:\Program Files\Java\jdk-21"
 $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 
-$props = ConvertFrom-StringData (Get-Content .\signingkey.properties -Raw)
+$props = ConvertFrom-StringData (Get-Content .\secret\signingkey.properties -Raw)
 $env:KEY_STORE_PASSWORD = $props.KEY_STORE_PASSWORD
 $env:ALIAS              = $props.ALIAS
 $env:KEY_PASSWORD       = $props.KEY_PASSWORD
+
+# 上游把密钥路径写死为 rootProject.file("signingkey.jks")，
+# 密钥在 secret/ 时要先就位到仓库根目录，否则会静默回退成 debug 签名
+Copy-Item .\secret\signingkey.jks .\signingkey.jks
 
 .\gradlew.bat :src:all:ammds:assembleRelease :src:all:ammds:lintRelease
 
 python .\src\all\ammds\tools\build_store.py --out-dir dist `
   --release-base-url https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/main/dist
+
+Remove-Item .\signingkey.jks
 ```
 
 产物：
@@ -200,21 +220,44 @@ Mihon 端刷新扩展仓库即可看到新版本。`dist/` 里的产物被直接
 
 ## 签名密钥（重要）
 
-`signingkey.jks` 与 `signingkey.properties` **不在版本库里**（见 `.gitignore`），
-它们只存在于本地。请务必备份：
+扩展的签名材料放在 **`secret/`** 目录（**不在版本库里**，见 `.gitignore` 的
+`/secret/`、`*.jks`、`signingkey.properties`）：
+
+```text
+secret/
+├── signingkey.jks           签名密钥（alias `ammds`）
+└── signingkey.properties    KEY_STORE_PASSWORD / ALIAS / KEY_PASSWORD
+```
+
+`tools/build-release.ps1` 默认就到 `secret/` 找这两份文件，也兼容放在仓库根目录的旧位置，
+还可以用 `-KeyStore` / `-SigningProperties` / `-SecretDir` 显式指定。请务必备份该目录：
 
 * 丢了就无法再给已安装扩展推送更新（Mihon 会拒绝签名不一致的 APK），用户只能卸载后重装；
-* 换机器构建时要把这两个文件一起带过去；
-* 如果改用 CI 构建，请把它们放进仓库 Secrets（`KEY_STORE_PASSWORD` / `ALIAS` / `KEY_PASSWORD`），
+* 换机器构建时要把这两份文件一起带过去；
+* 如果改用 CI 构建，把它们放进仓库 Secrets（`KEY_STORE_PASSWORD` / `ALIAS` / `KEY_PASSWORD`），
   并把 `signingkey.jks` 编码后作为 Secret 文件写入工作目录。
+
+> **一个容易踩的坑**：上游的 `ExtensionPlugin.kt` 把密钥路径写死成
+> `rootProject.file("signingkey.jks")`，密钥不在仓库根目录时它**不会报错**，
+> 而是静默回退到 debug 签名——打出来的包会让所有已安装用户无法覆盖更新。
+> `tools/build-release.ps1` 会在构建期间把密钥就位到根目录、结束后清理，
+> 并比对本次产物与上次发布的签名指纹，发生变化时醒目告警。
 
 `dist/ammds-store.pb` 里的 `signingKey` 字段就是这份证书的 SHA-256，
 Mihon 用它校验下载到的 APK 是否真的由本仓库签名——因此**换密钥后必须重新生成 `dist/`**。
 
 ## 与 AMMDS 主仓库的关系
 
-扩展源码**只在本仓库维护**。主仓库（AMMDS 服务端）不再保存这份代码，
-它通过 Windows 目录链接把本仓库挂成工作区里的 `AMMDS-Mihon/`，方便一起开发调试。
+扩展源码**只在本仓库维护**。主仓库（AMMDS 服务端）通过 **git 子模块**把它挂在自己工作区的
+`AMMDS-Mihon/` 下，方便与服务端一起开发调试：
+
+```powershell
+# 主仓库里初始化子模块
+git submodule update --init --recursive
+```
+
+注意子模块记录的是「固定提交」而不是「跟随分支」：在本仓库提交并推送后，
+还要回主仓库提交一次新的 gitlink，主仓库才会指向这个新提交。
 
 服务端 `/api/mihon` 协议、Mihon 授权码（`secret_mihon`）与完整接入说明见主仓库的
 [docs/Mihon接入.md](https://github.com/QYG2297248353/AMMDS/blob/master/docs/Mihon%E6%8E%A5%E5%85%A5.md)。
