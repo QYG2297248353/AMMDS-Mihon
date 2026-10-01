@@ -20,6 +20,17 @@ AMMDS 漫画库：列表、搜索、详情、章节与在线阅读全部走 AMMD
 服务端地址由你自己填（自托管意味着域名/IP 不固定），扩展只负责把你的 AMMDS 数据
 转换成阅读器认识的模型。
 
+## 插件商店
+
+1. 下载 Mihon App：[https://mihon.app/](https://mihon.app/]
+2. Mihon：浏览 → 插件 → 右上角三个点（插件商店） → 添加，粘贴下面的地址：
+
+```
+https://raw.githubusercontent.com/QYG2297248353/AMMDS-Mihon/master/dist/ammds-store.pb
+```
+
+回到 Mihon，刷新扩展仓库，即可看到「AMMDS」扩展。进行安装即可。
+
 ## 怎么用
 
 ```text
@@ -43,13 +54,13 @@ AMMDS 漫画库：列表、搜索、详情、章节与在线阅读全部走 AMMD
 
 ## 常见问题
 
-| 现象 | 原因与处理 |
-| --- | --- |
-| 填完地址显示「已连接」，但进漫画页报错 | 扩展版本旧。刷新扩展仓库升级到最新版 |
-| 一直提示未授权 | 授权码类型不对。必须是「Mihon 扩展」类型；账户密码登录也能用，但推荐授权码 |
-| 连接失败 / 超时 | 手机与 AMMDS 服务端不在同一网络，或服务端地址填的是容器内网 IP |
-| 封面/页面图裂 | 服务端需要较新版本（图片经服务端代理下发） |
-| 装了新版本却没生效 | `raw.githubusercontent.com` 有 CDN 缓存，推送后可能要几分钟才可见 |
+| 现象                                   | 原因与处理                                                                 |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| 填完地址显示「已连接」，但进漫画页报错 | 扩展版本旧。刷新扩展仓库升级到最新版                                       |
+| 一直提示未授权                         | 授权码类型不对。必须是「Mihon 扩展」类型；账户密码登录也能用，但推荐授权码 |
+| 连接失败 / 超时                        | 手机与 AMMDS 服务端不在同一网络，或服务端地址填的是容器内网 IP             |
+| 封面/页面图裂                          | 服务端需要较新版本（图片经服务端代理下发）                                 |
+| 装了新版本却没生效                     | `raw.githubusercontent.com` 有 CDN 缓存，推送后可能要几分钟才可见          |
 
 ---
 
@@ -80,9 +91,9 @@ Mihon / Tachiyomi                     AMMDS 服务端
 
 两个容易踩的点：
 
-* `@Source` 类必须是 **abstract**，`baseUrl { custom(...) }` 才会生成可编辑的
+- `@Source` 类必须是 **abstract**，`baseUrl { custom(...) }` 才会生成可编辑的
   「Custom base URL」设置项；写成非 abstract 会直接构建失败；
-* 映射时右侧字段**必须显式限定接收者**（`this@MangaDto.title`）：
+- 映射时右侧字段**必须显式限定接收者**（`this@MangaDto.title`）：
   `SManga.create().apply { this.title = title }` 里的右侧 `title` 会解析到 `SManga` 自己那个
   `lateinit` 属性，进漫画页会抛 `UninitializedPropertyAccessException`。
 
@@ -113,10 +124,10 @@ SDK 版本在 `gradle/kei.versions.toml`：`minSdk 26`、`compileSdk 37`、`targ
 
 ## 环境要求
 
-* **标准 JDK 21**（不要用 GraalVM：它缺少 jmods，AGP 的 `JdkImageTransform` 会失败）
-* **Android SDK**（`compileSdk 37` 缺失时构建会自动下载）
-* **Python 3 + `protobuf`** —— 仅生成扩展仓库索引时需要
-* 首次构建需要联网拉取 Gradle 依赖与 Android 组件
+- **标准 JDK 21**（不要用 GraalVM：它缺少 jmods，AGP 的 `JdkImageTransform` 会失败）
+- **Android SDK**（`compileSdk 37` 缺失时构建会自动下载）
+- **Python 3 + `protobuf`** —— 仅生成扩展仓库索引时需要
+- 首次构建需要联网拉取 Gradle 依赖与 Android 组件
 
 ## 构建与索引
 
@@ -191,10 +202,10 @@ python .\src\all\ammds\tools\build_store.py --out-dir dist `
 
 `build_store.py` 的关键行为：
 
-* 向上查找最近的 `settings.gradle.kts` 定位扩展根目录，因此在哪个目录执行都可以；
-* 从构建产物里解析签名证书指纹（`apksigner` / `keytool` 自动探测），写进索引的 `signingKey`；
+- 向上查找最近的 `settings.gradle.kts` 定位扩展根目录，因此在哪个目录执行都可以；
+- 从构建产物里解析签名证书指纹（`apksigner` / `keytool` 自动探测），写进索引的 `signingKey`；
   **探测不到会直接报错**，不会生成一个 `signingKey` 为空的索引（那种索引 Mihon 会拒绝）；
-* 同时产出 `ammds-store.pb`（Mihon 实际读取的 gzip protobuf 索引）、
+- 同时产出 `ammds-store.pb`（Mihon 实际读取的 gzip protobuf 索引）、
   `ammds-store.json`（可读形式，便于核对）与 `ammds-icon.png`。
 
 ### 发布 / 更新扩展
@@ -232,9 +243,9 @@ secret/
 `tools/build-release.ps1` 默认就到 `secret/` 找这两份文件，也兼容放在仓库根目录的旧位置，
 还可以用 `-KeyStore` / `-SigningProperties` / `-SecretDir` 显式指定。请务必备份该目录：
 
-* 丢了就无法再给已安装扩展推送更新（Mihon 会拒绝签名不一致的 APK），用户只能卸载后重装；
-* 换机器构建时要把这两份文件一起带过去；
-* 如果改用 CI 构建，把它们放进仓库 Secrets（`KEY_STORE_PASSWORD` / `ALIAS` / `KEY_PASSWORD`），
+- 丢了就无法再给已安装扩展推送更新（Mihon 会拒绝签名不一致的 APK），用户只能卸载后重装；
+- 换机器构建时要把这两份文件一起带过去；
+- 如果改用 CI 构建，把它们放进仓库 Secrets（`KEY_STORE_PASSWORD` / `ALIAS` / `KEY_PASSWORD`），
   并把 `signingkey.jks` 编码后作为 Secret 文件写入工作目录。
 
 > **一个容易踩的坑**：上游的 `ExtensionPlugin.kt` 把密钥路径写死成
