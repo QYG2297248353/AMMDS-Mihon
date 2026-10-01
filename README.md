@@ -22,7 +22,7 @@ AMMDS 漫画库：列表、搜索、详情、章节与在线阅读全部走 AMMD
 
 ## 插件商店
 
-1. 下载 Mihon App：[https://mihon.app/](https://mihon.app/]
+1. 下载 Mihon App：[mihon.app](https://mihon.app/)
 2. Mihon：浏览 → 插件 → 右上角三个点（插件商店） → 添加，粘贴下面的地址：
 
 ```
