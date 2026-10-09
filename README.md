@@ -1,6 +1,6 @@
 # AMMDS-Mihon
 
-[AMMDS](https://github.com/QYG2297248353/AMMDS) 的 [Mihon / Tachiyomi](https://mihon.app/) 扩展。
+AMMDS 的 [Mihon / Tachiyomi](https://mihon.app/) 扩展。
 
 这个仓库**同时就是扩展的发布源**：`dist/` 下的产物通过 `raw.githubusercontent.com` 对外提供，
 在 Mihon 里把它添加为「扩展仓库」即可安装并自动更新。
@@ -256,22 +256,6 @@ secret/
 
 `dist/ammds-store.pb` 里的 `signingKey` 字段就是这份证书的 SHA-256，
 Mihon 用它校验下载到的 APK 是否真的由本仓库签名——因此**换密钥后必须重新生成 `dist/`**。
-
-## 与 AMMDS 主仓库的关系
-
-扩展源码**只在本仓库维护**。主仓库（AMMDS 服务端）通过 **git 子模块**把它挂在自己工作区的
-`AMMDS-Mihon/` 下，方便与服务端一起开发调试：
-
-```powershell
-# 主仓库里初始化子模块
-git submodule update --init --recursive
-```
-
-注意子模块记录的是「固定提交」而不是「跟随分支」：在本仓库提交并推送后，
-还要回主仓库提交一次新的 gitlink，主仓库才会指向这个新提交。
-
-服务端 `/api/mihon` 协议、Mihon 授权码（`secret_mihon`）与完整接入说明见主仓库的
-[docs/Mihon接入.md](https://github.com/QYG2297248353/AMMDS/blob/master/docs/Mihon%E6%8E%A5%E5%85%A5.md)。
 
 ## 许可
 
